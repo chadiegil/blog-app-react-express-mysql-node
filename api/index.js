@@ -1,14 +1,22 @@
-const express = require("express");
-const app = express();
-const PORT = 3001;
-const postRoutes = require("./routes/posts");
-const authRoutes = require("./routes/auth");
-const userRoutes = require("./routes/users");
+import express from "express";
+import dotenv from "dotenv";
+import postRoutes from "./routes/posts.js";
+import authRoutes from "./routes/auth.js";
+import userRoutes from "./routes/user.js";
+import cors from "cors";
 
+const app = express();
+app.use(cors());
+
+dotenv.config();
+
+const PORT = process.env.PORT || 3002;
+
+app.use(express.json());
+app.use("/api/posts", postRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/post", postRoutes);
+app.use("/api/user", userRoutes);
 
 app.listen(PORT, () => {
-  console.log(`server running on port http://localhost:${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
