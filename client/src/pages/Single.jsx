@@ -1,80 +1,76 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Edit from "../img/edit.png";
 import Delete from "../img/delete.png";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import Menu from "../components/Menu";
+import axios from "axios";
+import moment from "moment";
+import { useContext } from "react";
+import { AuthContext } from "../context/authContext";
 
 const Single = () => {
+  const [post, setPost] = useState({});
+
+  const location = useLocation();
+  const navigate = useNavigate();
+  const postID = useParams();
+
+  // const postId = location.pathname.split("/")[2];
+
+  const { currentUser } = useContext(AuthContext);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get(`/api/posts/${postID}`);
+        setPost(res.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetchData();
+  }, [postID]);
+
+  const handleDelete = async () => {
+    try {
+      await axios.delete(`/api/posts/${postID}`);
+      navigate("/");
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const getText = (html) => {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    return doc.body.textContent;
+  };
+
   return (
     <div className="single">
       <div className="content">
+        {/* <img src={`../upload/${post?.img}`} alt="" /> */}
         <img
           src="https://images.pexels.com/photos/6157049/pexels-photo-6157049.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
           alt=""
         />
         <div className="user">
-          <img
-            src="https://images.pexels.com/photos/6157049/pexels-photo-6157049.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-            alt=""
-          />
+          {post.userImg && <img src={post.userImg} alt="" />}
           <div className="info">
-            <span>Chadie Gil</span>
-            <p>POsted 2 days ago</p>
+            <span>{post.username}</span>
+            <p>Posted {moment(post.date).fromNow()}</p>
           </div>
-          <div className="edit">
-            <Link to={`/write?edit=2`}>
-              <img src={Edit} alt="edit img" />
-            </Link>
-            <Link to={`/write?delete=2`}>
-              <img src={Delete} alt="edit img" />
-            </Link>
-          </div>
+          {currentUser.username === post.username && (
+            <div className="edit">
+              <Link to={`/write?edit=2`} state={post}>
+                <img src={Edit} alt="" />
+              </Link>
+              <img onClick={handleDelete} src={Delete} alt="" />
+            </div>
+          )}
         </div>
-
-        <h1>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Sequi earum
-          nam deserunt dolorem exercitationem laborum illo, ipsa eum at
-          recusandae!
-        </h1>
-        <p>
-          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Reiciendis
-          eligendi rem, quia consectetur nesciunt ab incidunt nulla commodi id
-          omnis dolorum consequatur velit aliquam ea ullam provident sint
-          ratione itaque ad ipsum cumque! Voluptate quae eaque praesentium
-          voluptas autem sed qui omnis! Perspiciatis maiores quaerat saepe cum
-          earum, doloremque nihil.
-        </p>
-        <br />
-        <p>
-          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Reiciendis
-          eligendi rem, quia consectetur nesciunt ab incidunt nulla commodi id
-          omnis dolorum consequatur velit aliquam ea ullam provident sint
-          ratione itaque ad ipsum cumque! Voluptate quae eaque praesentium
-          voluptas autem sed qui omnis! Perspiciatis maiores quaerat saepe cum
-          earum, doloremque nihil.
-        </p>
-        <br />
-
-        <p>
-          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Reiciendis
-          eligendi rem, quia consectetur nesciunt ab incidunt nulla commodi id
-          omnis dolorum consequatur velit aliquam ea ullam provident sint
-          ratione itaque ad ipsum cumque! Voluptate quae eaque praesentium
-          voluptas autem sed qui omnis! Perspiciatis maiores quaerat saepe cum
-          earum, doloremque nihil.
-        </p>
-        <br />
-
-        <p>
-          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Reiciendis
-          eligendi rem, quia consectetur nesciunt ab incidunt nulla commodi id
-          omnis dolorum consequatur velit aliquam ea ullam provident sint
-          ratione itaque ad ipsum cumque! Voluptate quae eaque praesentium
-          voluptas autem sed qui omnis! Perspiciatis maiores quaerat saepe cum
-          earum, doloremque nihil.
-        </p>
+        <h1>{post.title}</h1>
       </div>
-      <Menu />
+      <Menu cat={post.cat} />
     </div>
   );
 };
