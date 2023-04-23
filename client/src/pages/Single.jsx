@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Edit from "../img/edit.png";
 import Delete from "../img/delete.png";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import Menu from "../components/Menu";
 import axios from "axios";
 import moment from "moment";
@@ -11,10 +11,10 @@ import { AuthContext } from "../context/authContext";
 const Single = () => {
   const [post, setPost] = useState({});
 
-  const location = useLocation();
   const navigate = useNavigate();
-  const postID = useParams();
+  const postId = useParams();
 
+  // const location = useLocation();
   // const postId = location.pathname.split("/")[2];
 
   const { currentUser } = useContext(AuthContext);
@@ -22,18 +22,18 @@ const Single = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(`/api/posts/${postID}`);
+        const res = await axios.get(`/api/posts/${postId}`);
         setPost(res.data);
       } catch (err) {
         console.log(err);
       }
     };
     fetchData();
-  }, [postID]);
+  }, [postId]);
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`/api/posts/${postID}`);
+      await axios.delete(`/api/posts/${postId}`);
       navigate("/");
     } catch (err) {
       console.log(err);
